@@ -254,17 +254,17 @@ function mdToHtml(text: string): string {
         opacity: 0.6;
       }
       to {
-        transform: translateX(-50%) translateY(0) perspective(900px) rotateX(0deg) scale(1);
+        transform: translateX(-50%) translateY(0);
         opacity: 1;
       }
     }
     @keyframes menuDismiss {
       from {
-        transform: translateX(-50%) translateY(0) perspective(900px) rotateX(0deg) scale(1);
+        transform: translateX(-50%) translateY(0);
         opacity: 1;
       }
       to {
-        transform: translateX(-50%) translateY(110%) perspective(900px) rotateX(12deg) scale(0.96);
+        transform: translateX(-50%) translateY(100%) perspective(900px) rotateX(12deg) scale(0.96);
         opacity: 0.6;
       }
     }
@@ -303,14 +303,14 @@ function mdToHtml(text: string): string {
     .menu-section-title {
       font-family: 'Inter', sans-serif;
       font-weight: 600;
-      font-size: 16px;
+      font-size: 18px;
       color: var(--ink);
       margin-bottom: 8px;
     }
     .menu-section-body {
       font-family: 'Inter', sans-serif;
-      font-size: 14px;
-      line-height: 1.6;
+      font-size: 16px;
+      line-height: 1.65;
       color: var(--ink);
     }
     .menu-section-body a { color: var(--ink); }
@@ -327,7 +327,7 @@ function mdToHtml(text: string): string {
       background: none;
       cursor: pointer;
       font-family: 'Inter', sans-serif;
-      font-size: 14px;
+      font-size: 16px;
       color: var(--ink);
       text-align: left;
       -webkit-tap-highlight-color: transparent;
