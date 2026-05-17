@@ -452,13 +452,17 @@ function mdToHtml(text: string): string {
     const menuOpenBtn = document.getElementById('menuOpen')!;
     const pizzaWheel  = menuOpenBtn.querySelector('svg')!;
 
+    let themeAtMenuOpen = '';
+
     function openMenu() {
+      themeAtMenuOpen = document.documentElement.getAttribute('data-theme') || 'red';
       panel.classList.add('open');
       overlay.classList.add('open');
       panel.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
     }
     function closeMenu() {
+      const themeChanged = document.documentElement.getAttribute('data-theme') !== themeAtMenuOpen;
       panel.style.transform = '';
       panel.style.transition = '';
       overlay.classList.remove('open');
@@ -467,6 +471,7 @@ function mdToHtml(text: string): string {
         panel.classList.remove('open', 'closing');
         panel.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
+        if (themeChanged) window.location.reload();
       }, { once: true });
     }
 
