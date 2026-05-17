@@ -1,0 +1,14 @@
+{
+  "place": "licoli",
+  "service": "eat-in",
+  "items": [
+    {
+      "name": "Cherry tomatoes",
+      "slices": 3
+    },
+    {
+      "name": "Margherita",
+      "slices": 3
+    }
+  ]
+}

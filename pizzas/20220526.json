@@ -1,0 +1,14 @@
+{
+  "place": "artichoke-basil",
+  "service": "eat-in",
+  "items": [
+    {
+      "name": "Pepperoni",
+      "slices": 1
+    },
+    {
+      "name": "Plain cheese",
+      "slices": 1
+    }
+  ]
+}

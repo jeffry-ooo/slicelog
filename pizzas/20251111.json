@@ -1,0 +1,14 @@
+{
+  "place": "joost-pizza",
+  "service": "eat-in",
+  "items": [
+    {
+      "name": "Bloody Mary",
+      "slices": 6
+    },
+    {
+      "name": "Bottarga",
+      "slices": 4
+    }
+  ]
+}

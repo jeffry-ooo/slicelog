@@ -1,0 +1,505 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+
+const placesPath = path.join(process.cwd(), 'places.json');
+const places = JSON.parse(fs.readFileSync(placesPath, 'utf8'));
+const placeMap = Object.fromEntries(places.map((p: any) => [p.id, p]));
+
+const pizzasDir = path.join(process.cwd(), 'pizzas');
+const pizzaFiles = fs.readdirSync(pizzasDir).filter(f => f.endsWith('.json')).sort().reverse();
+
+// Each JSON file = one receipt (one pizza day)
+const receipts = pizzaFiles.map(f => {
+  const raw = JSON.parse(fs.readFileSync(path.join(pizzasDir, f), 'utf8'));
+  const dateStr = f.replace('.json', '');
+  const y = dateStr.slice(0, 4), m = dateStr.slice(4, 6), d = dateStr.slice(6, 8);
+  return { ...raw, date: new Date(`${y}-${m}-${d}T12:00:00`) };
+});
+
+function formatDate(d: Date) {
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+}
+
+const serviceLabel: Record<string, string> = {
+  'eat-in':    'EAT IN',
+  'delivery':  'DELIVERY',
+  'take-away': 'TAKE AWAY',
+  'diy':       'DIY',
+};
+
+// ── Menu content from menu.md ──
+const menuMd = fs.readFileSync(path.join(process.cwd(), 'menu.md'), 'utf8');
+const menuSections = menuMd.trim()
+  .split(/(?=^## )/m)
+  .filter(Boolean)
+  .map(chunk => {
+    const lines = chunk.replace(/^## /, '').split('\n');
+    const title = lines[0].trim();
+    const body = lines.slice(1).join('\n').trim();
+    return { title, body };
+  });
+
+function mdToHtml(text: string): string {
+  return text
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color:inherit">$1</a>')
+    .replace(/\n/g, '<br />');
+}
+---
+
+<!DOCTYPE html>
+<html lang="en" data-theme="red">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Slicelog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&family=Chivo:wght@400&family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+    /* ── Theme tokens ── */
+    html[data-theme="red"]      { --bg: #c20000; --card: #fffcf2; --ink: #c20000; --logo: #fffcf2; }
+    html[data-theme="white"]    { --bg: #eae4cf; --card: #fffcf2; --ink: #117522; --logo: #117522; }
+    html[data-theme="welldone"] { --bg: #111111; --card: #767676; --ink: #111111; --logo: #767676; }
+
+    html { background: var(--bg); }
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      padding-bottom: 80px;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px 16px;
+    }
+    .logo {
+      font-family: 'Instrument Serif', serif; font-weight: 400;
+      font-size: 42px;
+      line-height: 1;
+      color: var(--logo);
+    }
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--logo);
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .icon-btn svg { width: 40px; height: 40px; }
+
+    /* ── Receipts ── */
+    .receipts {
+      padding: 12px 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    /* ── Receipt card ── */
+    .receipt { position: relative; margin: 10px 0; }
+
+    /* Zigzag top */
+    .receipt::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 0;
+      width: 100%;
+      height: 10px;
+      background: var(--card);
+      clip-path: polygon(
+        0% 100%, 2.5% 0%, 5% 100%, 7.5% 0%, 10% 100%, 12.5% 0%,
+        15% 100%, 17.5% 0%, 20% 100%, 22.5% 0%, 25% 100%, 27.5% 0%,
+        30% 100%, 32.5% 0%, 35% 100%, 37.5% 0%, 40% 100%, 42.5% 0%,
+        45% 100%, 47.5% 0%, 50% 100%, 52.5% 0%, 55% 100%, 57.5% 0%,
+        60% 100%, 62.5% 0%, 65% 100%, 67.5% 0%, 70% 100%, 72.5% 0%,
+        75% 100%, 77.5% 0%, 80% 100%, 82.5% 0%, 85% 100%, 87.5% 0%,
+        90% 100%, 92.5% 0%, 95% 100%, 97.5% 0%, 100% 100%
+      );
+    }
+
+    /* Zigzag bottom */
+    .receipt::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 100%;
+      height: 10px;
+      background: var(--card);
+      clip-path: polygon(
+        0% 0%, 2.5% 100%, 5% 0%, 7.5% 100%, 10% 0%, 12.5% 100%,
+        15% 0%, 17.5% 100%, 20% 0%, 22.5% 100%, 25% 0%, 27.5% 100%,
+        30% 0%, 32.5% 100%, 35% 0%, 37.5% 100%, 40% 0%, 42.5% 100%,
+        45% 0%, 47.5% 100%, 50% 0%, 52.5% 100%, 55% 0%, 57.5% 100%,
+        60% 0%, 62.5% 100%, 65% 0%, 67.5% 100%, 70% 0%, 72.5% 100%,
+        75% 0%, 77.5% 100%, 80% 0%, 82.5% 100%, 85% 0%, 87.5% 100%,
+        90% 0%, 92.5% 100%, 95% 0%, 97.5% 100%, 100% 0%
+      );
+    }
+
+    .receipt-inner {
+      background: var(--card);
+      padding: 20px 28px 22px;
+    }
+
+    .receipt-tag {
+      font-family: 'Chivo', sans-serif;
+      font-size: 12px;
+      letter-spacing: 2.5px;
+      text-align: center;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .receipt-place {
+      font-family: 'Instrument Serif', serif; font-weight: 400;
+      font-size: 50px;
+      line-height: 1.05;
+      text-align: center;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--ink);
+      opacity: 0.25;
+    }
+
+    .pizza-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 0;
+    }
+
+    .pizza-name {
+      font-family: 'Chivo', sans-serif;
+      font-size: 13px;
+      letter-spacing: 1.8px;
+      color: var(--ink);
+    }
+
+    .slices {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .s-on, .s-off {
+      display: inline-block;
+      width: 0; height: 0;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 10px solid var(--ink);
+    }
+    .s-off { opacity: 0.18; }
+
+    .receipt-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 11px;
+    }
+    .receipt-footer span {
+      font-family: 'Chivo', sans-serif;
+      font-size: 13px;
+      letter-spacing: 1.8px;
+      color: var(--ink);
+    }
+
+    /* ── Overlay ── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .overlay.open { opacity: 1; pointer-events: auto; }
+
+    /* ── Spin animation ── */
+    @keyframes pizzaSpin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(180deg); }
+    }
+    #menuOpen.spinning svg { animation: pizzaSpin 0.55s ease-in-out; }
+
+    /* ── Menu panel ── */
+    @keyframes menuPresent {
+      from {
+        transform: translateX(-50%) translateY(56px) perspective(900px) rotateX(12deg) scale(0.96);
+        opacity: 0.6;
+      }
+      to {
+        transform: translateX(-50%) translateY(0) perspective(900px) rotateX(0deg) scale(1);
+        opacity: 1;
+      }
+    }
+    @keyframes menuDismiss {
+      from {
+        transform: translateX(-50%) translateY(0) perspective(900px) rotateX(0deg) scale(1);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(-50%) translateY(110%) perspective(900px) rotateX(12deg) scale(0.96);
+        opacity: 0.6;
+      }
+    }
+    .menu-panel {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateX(-50%) translateY(100%);
+      background: var(--card);
+      padding: 28px 28px 48px;
+      z-index: 101;
+      box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.3);
+      transition: transform 0.25s ease-out; /* swipe snap-back only */
+    }
+    .menu-panel.open {
+      transform: translateX(-50%) translateY(0);
+      animation: menuPresent 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .menu-panel.closing {
+      animation: menuDismiss 0.5s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+    }
+
+    .menu-title {
+      font-family: 'Instrument Serif', serif; font-weight: 400;
+      font-size: 48px;
+      line-height: 1;
+      color: var(--ink);
+      margin-bottom: 28px;
+    }
+
+    .menu-section { margin-bottom: 24px; }
+    .menu-section-title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .menu-section-body {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--ink);
+    }
+    .menu-section-body a { color: var(--ink); }
+
+    .theme-options { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .theme-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--ink);
+      border-radius: 8px;
+      background: none;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--ink);
+      text-align: left;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .theme-btn .tri {
+      display: inline-block;
+      width: 0; height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 9px solid var(--ink);
+      flex-shrink: 0;
+      opacity: 0.2;
+    }
+    .theme-btn.active .tri { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <header>
+      <span class="logo">SLICELOG</span>
+      <button class="icon-btn" id="menuOpen" aria-label="Open menu">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 0C37.2548 0 48 10.7452 48 24C48 37.2548 37.2548 48 24 48C10.7452 48 0 37.2548 0 24C0 10.7452 10.7452 0 24 0ZM13.876 43.5352C16.9067 45.109 20.3491 46 24 46C27.6506 46 31.0925 45.1088 34.123 43.5352L23.999 26L13.876 43.5352ZM35.8555 42.5342C41.6936 38.792 45.6469 32.368 45.9766 25H25.7324L35.8555 42.5342ZM2.02344 25C2.35306 32.3677 6.30578 38.792 12.1436 42.5342L22.2666 25H2.02344ZM25.7314 23H45.9766C45.6469 15.6318 41.6939 9.20696 35.8555 5.46484L25.7314 23ZM12.1436 5.46484C6.30553 9.20703 2.35306 15.6321 2.02344 23H22.2676L12.1436 5.46484ZM24 2C20.3492 2 16.9066 2.89015 13.876 4.46387L23.999 21.999L34.123 4.46387C31.0926 2.89039 27.6505 2 24 2Z" fill="currentColor"/>
+        </svg>
+      </button>
+    </header>
+
+    <main class="receipts">
+      {receipts.map(receipt => {
+        const place = (placeMap as any)[receipt.place];
+        const placeName = place?.name ?? receipt.place;
+        const service = serviceLabel[receipt.service] ?? receipt.service.toUpperCase();
+        return (
+          <article class="receipt">
+            <div class="receipt-inner">
+              <p class="receipt-tag">RECEIPT</p>
+              <h2 class="receipt-place">{placeName}</h2>
+              <hr class="divider" />
+              {receipt.items.map((item: any) => (
+                <Fragment>
+                  <div class="pizza-row">
+                    <span class="pizza-name">{item.name.toUpperCase()}</span>
+                    <span class="slices">
+                      {Array.from({ length: item.slices ?? 0 }, () => (
+                        <span class="s-on"></span>
+                      ))}
+                    </span>
+                  </div>
+                  <hr class="divider" />
+                </Fragment>
+              ))}
+              <div class="receipt-footer">
+                <span>{service}</span>
+                <span>{formatDate(receipt.date)}</span>
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </main>
+
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <aside class="menu-panel" id="menuPanel" aria-hidden="true">
+    <h2 class="menu-title">MENU</h2>
+
+    {menuSections.map(section => (
+      <div class="menu-section">
+        <h3 class="menu-section-title">{section.title}</h3>
+        {section.title === 'Secondo' ? (
+          <Fragment>
+            <p class="menu-section-body" set:html={mdToHtml(section.body)}></p>
+            <div class="theme-options">
+              <button class="theme-btn" data-theme="red"><span class="tri"></span>Red pizza</button>
+              <button class="theme-btn" data-theme="white"><span class="tri"></span>White pizza</button>
+              <button class="theme-btn" data-theme="welldone"><span class="tri"></span>Well done</button>
+            </div>
+          </Fragment>
+        ) : (
+          <p class="menu-section-body" set:html={mdToHtml(section.body)}></p>
+        )}
+      </div>
+    ))}
+  </aside>
+
+  <script>
+    const THEME_KEY = 'slicelog-theme';
+
+    function getCookieTheme(): string | null {
+      const m = document.cookie.match(/slicelog-theme=([^;]+)/);
+      return m ? m[1] : null;
+    }
+
+    function setTheme(theme: string) {
+      document.documentElement.setAttribute('data-theme', theme);
+      const exp = new Date(Date.now() + 30 * 864e5).toUTCString();
+      document.cookie = `${THEME_KEY}=${theme};expires=${exp};path=/`;
+      document.querySelectorAll<HTMLButtonElement>('.theme-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === theme);
+      });
+    }
+
+    setTheme(getCookieTheme() ?? 'red');
+
+    document.querySelectorAll<HTMLButtonElement>('.theme-btn').forEach(btn => {
+      btn.addEventListener('click', () => setTheme(btn.dataset.theme!));
+    });
+
+    const panel      = document.getElementById('menuPanel')!;
+    const overlay    = document.getElementById('overlay')!;
+    const menuOpenBtn = document.getElementById('menuOpen')!;
+    const pizzaWheel  = menuOpenBtn.querySelector('svg')!;
+
+    function openMenu() {
+      panel.classList.add('open');
+      overlay.classList.add('open');
+      panel.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMenu() {
+      panel.style.transform = '';
+      panel.style.transition = '';
+      overlay.classList.remove('open');
+      panel.classList.add('closing');
+      panel.addEventListener('animationend', () => {
+        panel.classList.remove('open', 'closing');
+        panel.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }, { once: true });
+    }
+
+    // Pizza wheel click: spin then open
+    menuOpenBtn.addEventListener('click', () => {
+      pizzaWheel.classList.remove('spinning');
+      void pizzaWheel.offsetWidth; // restart animation
+      pizzaWheel.classList.add('spinning');
+      pizzaWheel.addEventListener('animationend', () => {
+        pizzaWheel.classList.remove('spinning');
+      }, { once: true });
+      openMenu();
+    });
+
+    overlay.addEventListener('click', closeMenu);
+
+    // Swipe-down-to-close
+    let touchStartY = 0;
+    panel.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    panel.addEventListener('touchmove', (e) => {
+      const dy = e.touches[0].clientY - touchStartY;
+      if (dy > 0 && panel.scrollTop === 0) {
+        panel.style.transition = 'none';
+        panel.style.transform = `translateX(-50%) translateY(${dy}px)`;
+      }
+    }, { passive: true });
+
+    panel.addEventListener('touchend', (e) => {
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if (dy > 80) {
+        closeMenu();
+      } else {
+        // Snap back to open position
+        panel.style.transition = 'transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)';
+        panel.style.transform = 'translateX(-50%) translateY(0)';
+        setTimeout(() => { panel.style.transition = ''; panel.style.transform = ''; }, 320);
+      }
+    }, { passive: true });
+  </script>
+</body>
+</html>

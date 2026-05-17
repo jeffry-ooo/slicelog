@@ -1,0 +1,14 @@
+{
+  "place": "pizarro",
+  "service": "delivery",
+  "items": [
+    {
+      "name": "Pepperoni",
+      "slices": 3
+    },
+    {
+      "name": "Margherita",
+      "slices": 3
+    }
+  ]
+}

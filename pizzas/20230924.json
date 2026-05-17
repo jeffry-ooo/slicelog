@@ -1,0 +1,10 @@
+{
+  "place": "lolo-breda",
+  "service": "eat-in",
+  "items": [
+    {
+      "name": "Margherita",
+      "slices": 6
+    }
+  ]
+}

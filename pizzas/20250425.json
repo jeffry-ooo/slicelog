@@ -1,0 +1,10 @@
+{
+  "place": "orso",
+  "service": "delivery",
+  "items": [
+    {
+      "name": "Nduja",
+      "slices": 6
+    }
+  ]
+}

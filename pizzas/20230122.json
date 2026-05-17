@@ -1,0 +1,14 @@
+{
+  "place": "pizza-project-amsterdam",
+  "service": "eat-in",
+  "items": [
+    {
+      "name": "Margherita",
+      "slices": 3
+    },
+    {
+      "name": "Mortadella",
+      "slices": 3
+    }
+  ]
+}

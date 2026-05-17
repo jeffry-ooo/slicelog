@@ -1,0 +1,10 @@
+{
+  "place": "cabin",
+  "service": "diy",
+  "items": [
+    {
+      "name": "BBQ Chicken",
+      "slices": 6
+    }
+  ]
+}

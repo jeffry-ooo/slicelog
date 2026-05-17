@@ -1,0 +1,14 @@
+{
+  "place": "bellini",
+  "service": "delivery",
+  "items": [
+    {
+      "name": "Capricciosa",
+      "slices": 1
+    },
+    {
+      "name": "Nduja",
+      "slices": 6
+    }
+  ]
+}

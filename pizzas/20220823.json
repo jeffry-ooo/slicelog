@@ -1,0 +1,10 @@
+{
+  "place": "nonno-oscar-modena",
+  "service": "eat-in",
+  "items": [
+    {
+      "name": "Sausage and onions",
+      "slices": 6
+    }
+  ]
+}

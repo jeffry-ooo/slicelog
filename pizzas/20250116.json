@@ -1,0 +1,10 @@
+{
+  "place": "peppe-paris",
+  "service": "eat-in",
+  "items": [
+    {
+      "name": "Margherita",
+      "slices": 6
+    }
+  ]
+}
