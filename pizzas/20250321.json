@@ -3,11 +3,11 @@
   "service": "eat-in",
   "items": [
     {
-      "name": "Bloody Mary",
+      "type": "Bloody Mary",
       "slices": 3
     },
     {
-      "name": "Pineapple",
+      "type": "Pineapple",
       "slices": 3
     }
   ]

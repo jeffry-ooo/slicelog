@@ -3,7 +3,7 @@
   "service": "diy",
   "items": [
     {
-      "name": "BBQ Chicken",
+      "type": "BBQ Chicken",
       "slices": 6
     }
   ]

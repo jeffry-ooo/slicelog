@@ -3,11 +3,11 @@
   "service": "delivery",
   "items": [
     {
-      "name": "Pepperoni",
+      "type": "Pepperoni",
       "slices": 3
     },
     {
-      "name": "Margherita",
+      "type": "Margherita",
       "slices": 3
     }
   ]

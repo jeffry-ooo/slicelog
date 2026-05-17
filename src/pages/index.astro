@@ -370,7 +370,7 @@ function mdToHtml(text: string): string {
               {receipt.items.map((item: any) => (
                 <Fragment>
                   <div class="pizza-row">
-                    <span class="pizza-name">{item.name.toUpperCase()}</span>
+                    <span class="pizza-name">{item.type.toUpperCase()}</span>
                     <span class="slices">
                       {Array.from({ length: item.slices ?? 0 }, () => (
                         <span class="s-on"></span>

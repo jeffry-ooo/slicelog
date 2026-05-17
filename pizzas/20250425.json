@@ -3,7 +3,7 @@
   "service": "delivery",
   "items": [
     {
-      "name": "Nduja",
+      "type": "Nduja",
       "slices": 6
     }
   ]

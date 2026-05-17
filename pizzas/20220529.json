@@ -3,11 +3,11 @@
   "service": "eat-in",
   "items": [
     {
-      "name": "Pepperoni",
+      "type": "Pepperoni",
       "slices": 1
     },
     {
-      "name": "Plain cheese",
+      "type": "Plain cheese",
       "slices": 1
     }
   ]

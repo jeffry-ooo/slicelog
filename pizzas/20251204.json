@@ -3,11 +3,11 @@
   "service": "delivery",
   "items": [
     {
-      "name": "Capricciosa",
+      "type": "Capricciosa",
       "slices": 1
     },
     {
-      "name": "Diavola",
+      "type": "Diavola",
       "slices": 6
     }
   ]

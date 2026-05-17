@@ -3,7 +3,7 @@
   "service": "diy",
   "items": [
     {
-      "name": "Margherita",
+      "type": "Margherita",
       "slices": 6
     }
   ]

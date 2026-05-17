@@ -3,11 +3,11 @@
   "service": "eat-in",
   "items": [
     {
-      "name": "Cherry tomatoes",
+      "type": "Cherry tomatoes",
       "slices": 3
     },
     {
-      "name": "Margherita",
+      "type": "Margherita",
       "slices": 3
     }
   ]

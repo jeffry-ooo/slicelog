@@ -3,7 +3,7 @@
   "service": "eat-in",
   "items": [
     {
-      "name": "Sausage and onions",
+      "type": "Sausage and onions",
       "slices": 6
     }
   ]

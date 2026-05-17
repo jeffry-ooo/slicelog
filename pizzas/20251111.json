@@ -3,11 +3,11 @@
   "service": "eat-in",
   "items": [
     {
-      "name": "Bloody Mary",
+      "type": "Bloody Mary",
       "slices": 6
     },
     {
-      "name": "Bottarga",
+      "type": "Bottarga",
       "slices": 4
     }
   ]

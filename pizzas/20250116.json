@@ -3,7 +3,7 @@
   "service": "eat-in",
   "items": [
     {
-      "name": "Margherita",
+      "type": "Margherita",
       "slices": 6
     }
   ]
