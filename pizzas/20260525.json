@@ -1,0 +1,10 @@
+{
+  "place": "graan",
+  "service": "eat-in",
+  "items": [
+    {
+      "type": "Piccante",
+      "slices": 6
+    }
+  ]
+}

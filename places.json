@@ -68,5 +68,15 @@
     "id": "simonas",
     "name": "Simona's",
     "maps": null
+  },
+  {
+    "id": "dominos",
+    "name": "Domino's",
+    "maps": null
+  },
+  {
+    "id": "graan",
+    "name": "Graan",
+    "maps": null
   }
 ]

@@ -1,0 +1,14 @@
+{
+  "place": "dominos",
+  "service": "delivery",
+  "items": [
+    {
+      "type": "Margherita",
+      "slices": 3
+    },
+    {
+      "type": "Pepperoni",
+      "slices": 3
+    }
+  ]
+}
